@@ -30,7 +30,7 @@ export const AppDataSource = new DataSource({
     password: process.env.POSTGRES_PASSWORD,
     database: "assignment_data",
     entities: [Player],
-    synchronize: true,
+    synchronize: false,
 });
 
 // Define sever port

@@ -22,6 +22,7 @@ export class Player {
   position?: string;
 
   @Column({
+    name: "Dribble Skills",
     type: "double precision",
     nullable: true,
   })
@@ -46,12 +47,14 @@ export class Player {
   age?: number;
 
   @Column({
+    name: "Ball Control",
     type: "double precision",
     nullable: true,
   })
   ballControl?: number;
 
   @Column({
+    name: "Passing Under Pressure",
     type: "double precision",
     nullable: true,
   })
