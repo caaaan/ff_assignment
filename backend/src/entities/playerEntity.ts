@@ -1,53 +1,59 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, Column, PrimaryColumn } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'assignment_data' })
 export class Player {
     
-  @PrimaryGeneratedColumn()
-  id?: number;
+  @PrimaryColumn({
+    type: "text",
+    unique: true,
+  })
+  player?: string;
 
   @Column({
-    type: "text"
+    type: "text",
+    nullable: true,
   })
-  name: string;
+  team?: string;
 
   @Column({
-    type: "text"
+    type: "text",
+    nullable: true,
   })
-  team: string;
+  position?: string;
 
   @Column({
-    type: "text"
+    type: "double precision",
+    nullable: true,
   })
-  position: string;
+  dribbleSkill?: number;
 
   @Column({
-    type: "int"
+    type: "double precision",
+    nullable: true,
   })
-  dribbleSkill: number;
+  length?: number;
 
   @Column({
-    type: "int"
+    type: "double precision",
+    nullable: true,
   })
-  length: number;
+  weight?: number;
 
   @Column({
-    type: "int"
+    type: "double precision",
+    nullable: true,
   })
-  weight: number;
+  age?: number;
 
   @Column({
-    type: "int"
+    type: "double precision",
+    nullable: true,
   })
-  age: number;
+  ballControl?: number;
 
   @Column({
-    type: "int"
+    type: "double precision",
+    nullable: true,
   })
-  ballControl: number;
-
-  @Column({
-    type: "int"
-  })
-  passingUnderPressure: number;
+  passingUnderPressure?: number;
 }

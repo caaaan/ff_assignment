@@ -11,13 +11,15 @@ export class PlayerController {
         let allPlayers: Player[]=[];
         try{
             allPlayers = await AppDataSource.getRepository(Player).find({
-                order:{
-                    name: "ASC",
-                }
+               // order:{
+               //     name: "ASC",
+               // }
             });
-            allPlayers = instanceToPlain(allPlayers) as Player[];
+            console.log(allPlayers);
+            //allPlayers = instanceToPlain(allPlayers) as Player[];
             return res.json(allPlayers).status(200);
         } catch (_errors) {
+            console.log(_errors);
             return res.json({error: "internal Server Error"}).status(500);
         }
     } 
@@ -29,7 +31,7 @@ export class PlayerController {
         }
         const player = new Player();
 
-        player.name = req.body.name;
+        player.player = req.body.player;
         player.team = req.body.team;
         player.position = req.body.position;
         player.dribbleSkill = req.body.dribbleSkill;
@@ -69,7 +71,7 @@ export class PlayerController {
           player = await AppDataSource.getRepository(
             Player,
           ).findOne({
-            where: { id: req.body.id },
+            where: { player: req.body.player },
           });
         } catch (errors) {
           return res
@@ -80,7 +82,7 @@ export class PlayerController {
         // Return 400 if player is null
         if (!player) {
           return res.status(404).json({
-            error: 'The player with given ID does not exist',
+            error: 'The player with given name does not exist',
           });
         }
     
@@ -92,7 +94,7 @@ export class PlayerController {
           updatedPlayer = await AppDataSource.getRepository(
             Player,
           ).update(
-            req.body.id,
+            req.body.name,
             plainToInstance(Player, {
               team: req.body.team,
             }),
