@@ -5,6 +5,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import { Player } from "./entities/playerEntity";
 import { playerRouter } from "./routes/playerRouter";
+import { User } from "./entities/userEntity";
 
 
 
@@ -29,8 +30,8 @@ export const AppDataSource = new DataSource({
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     database: "assignment_data",
-    entities: [Player],
-    synchronize: false,
+    entities: [Player, User],
+    synchronize: true,
 });
 
 // Define sever port

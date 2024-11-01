@@ -112,6 +112,35 @@ export class PlayerController {
             .status(500);
         }
       }
+
+    public async delete(req: Request, res: Response): Promise<Response> {
+        const { player } = req.body; // Extract player field from request body
+
+        // Check if the player exists
+        let existingPlayer: Player | null;
+        try {
+            existingPlayer = await AppDataSource.getRepository(Player).findOne({
+                where: { player },
+            });
+        } catch (error) {
+            return res.json({ error: 'Internal Server Error' }).status(500);
+        }
+
+        // Return 404 if player does not exist
+        if (!existingPlayer) {
+            return res.status(404).json({
+                error: 'The player with given name does not exist',
+            });
+        }
+
+        // Proceed to delete the player
+        try {
+            await AppDataSource.getRepository(Player).delete({ player });
+            return res.status(204).send(); // No content to return on successful deletion
+        } catch (error) {
+            return res.json({ error: 'Internal Server Error' }).status(500);
+        }
+    }
 }
 
 export const playerController = new PlayerController();

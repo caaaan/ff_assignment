@@ -5,23 +5,35 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ChevronUpIcon, ChevronDownIcon, ChevronsUpDownIcon } from 'lucide-react'
+import { ChevronUpIcon, ChevronDownIcon, ChevronsUpDownIcon, Loader2, XCircle, Trash2 } from 'lucide-react'
+import useAuth from '@/hooks/useAuth'
+import { useRouter } from 'next/router'
 
 interface Player {
-
+  id: number
+  player: string
+  dribbleSkills: number
+  length: number
+  weight: number
   age: number
   ballControl: number
-  dribbleSkills: number
-  id: number
-  length: number
   passingUnderPressure: number
-  player: string
-  position: string
   team: string
-  weight: number
+  position: string
 }
 
 export default function PlayerTable() {
+  const isAuthenticated = useAuth(); // assuming it returns true if authenticated
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login'); // Redirect to login if not authenticated
+    }
+  }, [isAuthenticated, router]);
+
+  if (!isAuthenticated) return null; // Optionally, add a loading spinner or similar placeholder
+
   const [players, setPlayers] = useState<Player[]>([])
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false)
   const [newPlayer, setNewPlayer] = useState<Omit<Player, 'id'>>({
@@ -35,41 +47,35 @@ export default function PlayerTable() {
     team: '',
     position: '',
   })
+  const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const fetchPlayers = async () => {
+    try {
+      const response = await fetch('http://localhost:3002/players')
+      if (!response.ok) {
+        throw new Error('Failed to fetch players')
+      }
+      const data = await response.json()
+      setPlayers(data)
+    } catch (error) {
+      console.error('Error fetching players:', error)
+      setErrorMessage("Failed to fetch players. Please try again later.")
+    }
+  }
 
   useEffect(() => {
-    const fetchPlayers = async () => {
-      try {
-        // For demonstration, we're using mock data instead of an actual API call
-        /*const mockData: Player[] = [
-          { id: 1, player: 'John Doe', dribbleSkills: 85, length: 180, weight: 75, age: 25, ballControl: 88, passingUnderPressure: 82, team: 'Team A', position: 'Midfielder' },
-          { id: 2, player: 'Jane Smith', dribbleSkills: 78, length: 170, weight: 65, age: 23, ballControl: 85, passingUnderPressure: 80, team: 'Team B', position: 'Forward' },
-          { id: 3, player: 'Mike Johnson', dribbleSkills: 92, length: 185, weight: 80, age: 27, ballControl: 90, passingUnderPressure: 88, team: 'Team C', position: 'Defender' },
-          { id: 4, player: 'Sarah Williams', dribbleSkills: 88, length: 175, weight: 68, age: 24, ballControl: 87, passingUnderPressure: 85, team: 'Team A', position: 'Midfielder' },
-        ]
-          */
-        const response = await fetch('http://localhost:3002/players');
-        const data = await response.json();
-        console.log(data);
-        const formattedData: Player[] = data.map((item: any): Player => ({
-          age: item.age,
-          ballControl: item.ballControl,
-          dribbleSkills: item.dribbleSkills,
-          id: item.id, // Ensure the fetched data has an 'id' field
-          length: item.length,
-          passingUnderPressure: item.passingUnderPressure,
-          player: item.player,
-          position: item.position,
-          team: item.team,
-          weight: item.weight,
-        }));
-        console.log(formattedData);
-        setPlayers(formattedData);
-      } catch (error) {
-        console.error('Error fetching players:', error)
-      }
-    }
     fetchPlayers()
   }, [])
+
+  useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [errorMessage])
 
   const columns = useMemo<Column<Player>[]>(
     () => [
@@ -82,6 +88,20 @@ export default function PlayerTable() {
       { Header: 'Passing Under Pressure', accessor: 'passingUnderPressure' },
       { Header: 'Team', accessor: 'team' },
       { Header: 'Position', accessor: 'position' },
+      {
+        Header: '',
+        id: 'delete',
+        Cell: ({ row }: { row: any }) => (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => handleDeletePlayer(row.original.player)}
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        ),
+      },
     ],
     []
   )
@@ -111,10 +131,21 @@ export default function PlayerTable() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
     try {
-      // For demonstration, we're just adding to the local state instead of making an API call
-      const addedPlayer: Player = { ...newPlayer, id: players.length + 1 }
-      setPlayers(prev => [...prev, addedPlayer])
+      const response = await fetch('http://localhost:3002/player/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newPlayer),
+      })
+      if (!response.ok) {
+        throw new Error('Failed to add player')
+      }
+      
+      await fetchPlayers()
+      
       setIsAddPlayerOpen(false)
       setNewPlayer({
         player: '',
@@ -129,11 +160,33 @@ export default function PlayerTable() {
       })
     } catch (error) {
       console.error('Error adding player:', error)
+      setErrorMessage("An error has occurred. Please try again later.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDeletePlayer = async (playerName: string) => {
+    try {
+      const response = await fetch('http://localhost:3002/players', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ player: playerName }),
+      })
+      if (!response.ok) {
+        throw new Error('Failed to delete player')
+      }
+      await fetchPlayers()
+    } catch (error) {
+      console.error('Error deleting player:', error)
+      setErrorMessage("Failed to delete player. Please try again later.")
     }
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 relative">
       <Table {...getTableProps()} className="w-full">
         <TableHeader>
           {headerGroups.map((headerGroup: any) => (
@@ -160,11 +213,11 @@ export default function PlayerTable() {
           ))}
         </TableHeader>
         <TableBody {...getTableBodyProps()}>
-          {rows.map((row: any) => {
+          {rows.map(row => {
             prepareRow(row)
             return (
-              <TableRow {...row.getRowProps()}>
-                {row.cells.map((cell: any) => (
+              <TableRow {...row.getRowProps()} className="group">
+                {row.cells.map(cell => (
                   <TableCell {...cell.getCellProps()}>{cell.render('Cell')}</TableCell>
                 ))}
               </TableRow>
@@ -195,10 +248,27 @@ export default function PlayerTable() {
                 />
               </div>
             ))}
-            <Button type="submit">Add Player</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Adding...' : 'Add Player'}
+            </Button>
           </form>
         </DialogContent>
       </Dialog>
+
+      {isLoading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-white" />
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-red-500 text-white p-4 rounded-md shadow-lg flex items-center">
+            <XCircle className="h-5 w-5 mr-2" />
+            {errorMessage}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

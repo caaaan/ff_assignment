@@ -24,14 +24,29 @@ export const createValidator = [
 ];
 
 export const updateValidator = [
-  body('id').not().isEmpty().withMessage('The player id is mandatory')
+  body('player').not().isEmpty().withMessage('The player name is mandatory')
     .trim().isString().withMessage('ID needs to be a valid uuid format'),
 
   body('team').optional().trim().isString().withMessage('Team needs to be in text format'),
 
   body('position').optional().trim().isString().withMessage('Position needs to be in text format'),
 
-  // ... other fields can be added as needed
+  body('dribbleSkill').optional().isNumeric().withMessage('Dribble skill must be a number'),
+  body('length').optional().isNumeric().withMessage('Length must be a number'),
+  body('weight').optional().isNumeric().withMessage('Weight must be a number'),
+  body('age').optional().isNumeric().withMessage('Age must be a number'),
+  body('ballControl').optional().isNumeric().withMessage('Ball control must be a number'),
+  body('passingUnderPressure').optional().isNumeric().withMessage('Passing under pressure must be a number'),
+];
+
+export const deleteValidator = [
+  body('player')
+    .not()
+    .isEmpty()
+    .withMessage('The player field is mandatory')
+    .trim()
+    .isString()
+    .withMessage('Player needs to be in text format'),
 ];
 
   
