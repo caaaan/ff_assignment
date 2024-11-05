@@ -7,7 +7,7 @@ import { AlertCircle } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import bcrypt from 'bcryptjs'
+
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('')
@@ -29,15 +29,16 @@ export default function RegisterPage() {
     }
     
     try {
-      const hashedPassword = await bcrypt.hash(password, 10)
+     // Registration
       const response = await fetch('http://localhost:3002/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, hashedPassword }),
-      })
-      console.log('POST username:', username,'POST password:', hashedPassword);
+        body: JSON.stringify({ username, password }), 
+      });
+
+      console.error('POST username:', username,'POST password:', password);
 
       if (!response.ok) {
         const data = await response.json()

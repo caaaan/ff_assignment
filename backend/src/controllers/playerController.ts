@@ -8,6 +8,8 @@ import { UpdateResult } from "typeorm";
 export class PlayerController {
 
     public async getAll(req: Request, res:Response): Promise<Response>{
+      const token = req.cookies.token; // Retrieve the token from cookies
+      if (!token) return res.sendStatus(401); // Unauthorized
         let allPlayers: Player[]=[];
         try{
             allPlayers = await AppDataSource.getRepository(Player).find({
@@ -25,6 +27,8 @@ export class PlayerController {
     } 
 
     public async create(req:Request,res: Response): Promise<Response>{
+      const token = req.cookies.token; // Retrieve the token from cookies
+      if (!token) return res.sendStatus(401); // Unauthorized
         const errors = validationResult(req);
         if(!errors.isEmpty){
             return res.json({errors: errors.array}).status(400);
@@ -56,6 +60,8 @@ export class PlayerController {
         req: Request,
         res: Response,
       ): Promise<Response> {
+        const token = req.cookies.token; // Retrieve the token from cookies
+        if (!token) return res.sendStatus(401); // Unauthorized
         const errors = validationResult(req);
     
         if (!errors.isEmpty()) {
@@ -114,6 +120,8 @@ export class PlayerController {
       }
 
     public async delete(req: Request, res: Response): Promise<Response> {
+      const token = req.cookies.token; // Retrieve the token from cookies
+      if (!token) return res.sendStatus(401); // Unauthorized
         const { player } = req.body; // Extract player field from request body
 
         // Check if the player exists

@@ -6,6 +6,9 @@ import bodyParser from "body-parser";
 import { Player } from "./entities/playerEntity";
 import { playerRouter } from "./routes/playerRouter";
 import { User } from "./entities/userEntity";
+import cookieParser from 'cookie-parser';
+
+
 
 
 
@@ -14,11 +17,12 @@ const app: Express = express();
 dotenv.config();
 
 app.use(bodyParser.json());
-
+app.use(cookieParser());
 app.use(cors({
-    origin: '*', // Allow all origins
+    origin: 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow methods
-    allowedHeaders: ['Content-Type', 'Authorization'] // Allow headers
+    allowedHeaders: ['Content-Type', 'Authorization','credentials'], // Allow headers
+    credentials: true // Allow credentials (cookies)
 }));
 app.options('*', cors());
 

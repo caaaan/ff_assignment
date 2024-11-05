@@ -8,6 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ChevronUpIcon, ChevronDownIcon, ChevronsUpDownIcon, Loader2, XCircle, Trash2 } from 'lucide-react'
 import useAuth from '@/hooks/useAuth'
 import { useRouter } from 'next/router'
+import { GetServerSideProps } from 'next';
+//import jwt from 'jsonwebtoken';
 
 interface Player {
   id: number
@@ -22,17 +24,35 @@ interface Player {
   position: string
 }
 
+
+
 export default function PlayerTable() {
-  const isAuthenticated = useAuth(); // assuming it returns true if authenticated
+  
+  //const isAuthenticated = useAuth(); // assuming it returns true if authenticated
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login'); // Redirect to login if not authenticated
-    }
-  }, [isAuthenticated, router]);
+    useEffect(() => {
+        const checkAuth = async () => {
+            const response = await fetch('/players', {
+                method: 'GET',
+                credentials: 'include', // Important: allows cookies to be sent
+            });
 
-  if (!isAuthenticated) return null; // Optionally, add a loading spinner or similar placeholder
+            if (response.ok) {
+                setIsAuthenticated(true);
+            } else {
+                router.push('/login'); // Redirect to login if not authenticated
+            }
+        };
+
+        checkAuth();
+    }, [router]);
+
+
+
+
+  //if (!isAuthenticated) return null; // Optionally, add a loading spinner or similar placeholder
 
   const [players, setPlayers] = useState<Player[]>([])
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false)
@@ -52,12 +72,24 @@ export default function PlayerTable() {
 
   const fetchPlayers = async () => {
     try {
-      const response = await fetch('http://localhost:3002/players')
+      //const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+     
+      const response = await fetch('http://localhost:3002/players', {
+        method: "GET",
+        headers: {
+          "credentials": `include`,
+          "Content-Type": "application/json",
+        },
+      })
       if (!response.ok) {
+        console.error("response not ok")
+        console.log(response)
         throw new Error('Failed to fetch players')
       }
       const data = await response.json()
       setPlayers(data)
+      console.log('executes')
+      console.log(data)
     } catch (error) {
       console.error('Error fetching players:', error)
       setErrorMessage("Failed to fetch players. Please try again later.")
@@ -136,6 +168,7 @@ export default function PlayerTable() {
       const response = await fetch('http://localhost:3002/player/create', {
         method: 'POST',
         headers: {
+          credentials: 'include',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(newPlayer),
@@ -171,6 +204,7 @@ export default function PlayerTable() {
       const response = await fetch('http://localhost:3002/players', {
         method: 'DELETE',
         headers: {
+          credentials: 'include',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ player: playerName }),
