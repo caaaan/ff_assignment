@@ -1,3 +1,4 @@
+/*
 import { Request, Response, NextFunction } from 'express';
 import { AppDataSource } from '..';
 import { User } from '../entities/userEntity';
@@ -90,3 +91,4 @@ public authenticateToken(req: Request, res: Response, next: NextFunction) {
 }
 
 export const authController = new AuthController();
+*/

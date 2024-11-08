@@ -28,8 +28,9 @@ app.options('*', cors());
 
 export const AppDataSource = new DataSource({
     type: "postgres",
-    host: "localhost",
-    port: 5432,
+    //host: process.env.PGHOST || "mypostgres",
+    //port: 5432,
+    url: process.env.DATABASE_URL,
     //port: parseInt(process.env.PORT!),
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
@@ -46,12 +47,16 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
 
-AppDataSource.initialize().then(()=>{
-    // Start listenting to the requests on the defined port
-    app.listen(port);
-    console.log("datasource has been initialized");
-}).catch((err)=>{
-    console.log("error during datasource initialization: " , err);
-});
+let attempts = 200; // Number of attempts
+for (let i = 1; i <= attempts; i++) {
+    console.log("attempt: " + i);
+    AppDataSource.initialize().then(() => {
+        // Start listening to the requests on the defined port
+        app.listen(port);
+        console.log("datasource has been initialized");
+    }).catch((err) => {
+        console.log("error during datasource initialization: ", err);
+    });
+}
 
 app.use('/',playerRouter);

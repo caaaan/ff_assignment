@@ -31,7 +31,7 @@ export const updateValidator = [
 
   body('position').optional().trim().isString().withMessage('Position needs to be in text format'),
 
-  body('dribbleSkill').optional().isNumeric().withMessage('Dribble skill must be a number'),
+  body('dribbleSkills').optional().isNumeric().withMessage('Dribble skill must be a number'),
   body('length').optional().isNumeric().withMessage('Length must be a number'),
   body('weight').optional().isNumeric().withMessage('Weight must be a number'),
   body('age').optional().isNumeric().withMessage('Age must be a number'),

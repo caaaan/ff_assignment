@@ -26,7 +26,7 @@ export class Player {
     type: "double precision",
     nullable: true,
   })
-  dribbleSkill?: number;
+  dribbleSkills?: number;
 
   @Column({
     type: "double precision",

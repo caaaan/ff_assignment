@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ChevronUpIcon, ChevronDownIcon, ChevronsUpDownIcon, Loader2, XCircle, Trash2 } from 'lucide-react'
-import useAuth from '@/hooks/useAuth'
+
 import { useRouter } from 'next/router'
 import { GetServerSideProps } from 'next';
 //import jwt from 'jsonwebtoken';
@@ -29,9 +29,9 @@ interface Player {
 export default function PlayerTable() {
   
   //const isAuthenticated = useAuth(); // assuming it returns true if authenticated
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  //const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
-
+/*
     useEffect(() => {
         const checkAuth = async () => {
             const response = await fetch('/players', {
@@ -48,7 +48,7 @@ export default function PlayerTable() {
 
         checkAuth();
     }, [router]);
-
+*/
 
 
 
@@ -77,7 +77,7 @@ export default function PlayerTable() {
       const response = await fetch('http://localhost:3002/players', {
         method: "GET",
         headers: {
-          "credentials": `include`,
+         // "credentials": `include`,
           "Content-Type": "application/json",
         },
       })
