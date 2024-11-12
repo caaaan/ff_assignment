@@ -37,6 +37,11 @@ export const AppDataSource = new DataSource({
     database: "assignment_data",
     entities: [Player, User],
     synchronize: true,
+    extra: {
+        max: 20, // Set the maximum number of connections in the pool
+       // min: 1,  // Set the minimum number of connections in the pool
+       // idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
+    },
 });
 
 // Define sever port
@@ -47,16 +52,14 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
 
-let attempts = 200; // Number of attempts
-for (let i = 1; i <= attempts; i++) {
-    console.log("attempt: " + i);
-    AppDataSource.initialize().then(() => {
-        // Start listening to the requests on the defined port
-        app.listen(port);
-        console.log("datasource has been initialized");
-    }).catch((err) => {
-        console.log("error during datasource initialization: ", err);
-    });
-}
+
+AppDataSource.initialize().then(() => {
+    // Start listening to the requests on the defined port
+    app.listen(port);
+    console.log("datasource has been initialized");
+}).catch((err) => {
+    console.log("error during datasource initialization: ", err);
+});
+
 
 app.use('/',playerRouter);

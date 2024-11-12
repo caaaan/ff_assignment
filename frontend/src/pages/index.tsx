@@ -74,7 +74,7 @@ export default function PlayerTable() {
     try {
       //const token = document.cookie.split('; ').find(row => row.startsWith('token='));
      
-      const response = await fetch('http://localhost:3002/players', {
+      const response = await fetch('http://localhost:3001/players', {
         method: "GET",
         headers: {
          // "credentials": `include`,
@@ -165,7 +165,7 @@ export default function PlayerTable() {
     e.preventDefault()
     setIsLoading(true)
     try {
-      const response = await fetch('http://localhost:3002/player/create', {
+      const response = await fetch('http://localhost:3001/player/create', {
         method: 'POST',
         headers: {
           credentials: 'include',
@@ -201,7 +201,7 @@ export default function PlayerTable() {
 
   const handleDeletePlayer = async (playerName: string) => {
     try {
-      const response = await fetch('http://localhost:3002/players', {
+      const response = await fetch('http://localhost:3001/players', {
         method: 'DELETE',
         headers: {
           credentials: 'include',

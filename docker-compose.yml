@@ -5,31 +5,52 @@ services:
     build:
       context: ./backend
     ports:
-      - "3002:3002"
+      - "3001:3001"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgres://postgres:containerizeddatabasegalore@mypostgres:5432/assignment_data
+      - DATABASE_URL=postgres://postgres:containerizeddatabasegalore@player_db:5432/assignment_data
     networks:
       - ff_network
     depends_on:
-      mypostgres:
-        condition: service_healthy  # Wait for PostgreSQL to be healthy
+      player_db:
+        condition: service_healthy  # Wait for the new PostgreSQL service to be healthy
 
-  mypostgres:
+  player_db:
     image: postgres:latest
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: containerizeddatabasegalore
-      POSTGRES_DB: assignment_data
+     # POSTGRES_DB: player_database  # This is the new database for your Player entity
     networks:
       - ff_network
     ports:
-      - "5432:5432"  # Optional: Expose PostgreSQL port
+      - "5433:5432"  # Expose a different port for the player database
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - ff_assignment_pgdata:/var/lib/postgresql/data 
+
+ # adminer:
+ #    image: adminer
+ #   restart: always
+ #   ports:
+ #     - 8080:8080
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - ff_network
+
+volumes:
+  ff_assignment_pgdata:
 
 networks:
   ff_network:
